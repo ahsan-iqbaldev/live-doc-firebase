@@ -4,28 +4,48 @@
 // import Header from "@/components/Header";
 // import Notifications from '@/components/Notifications';
 // import { getDocuments } from "@/lib/actions/room.actions";
+import AddDocumentBtn from "@/components/AddDocumentBtn";
+import { DeleteModal } from "@/components/DeleteModal";
 import Header from "@/components/Header";
+import Notifications from "@/components/Notifications";
 import { dateConverter } from "@/lib/utils";
-// import { SignedIn, UserButton } from "@clerk/nextjs";
-// import { currentUser } from "@clerk/nextjs/server";
+import { SignedIn, UserButton } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/server";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 const Home = async () => {
-  // const clerkUser = await currentUser();
-  // if (!clerkUser) redirect("/sign-in");
+  const clerkUser = await currentUser();
+  if (!clerkUser) redirect("/sign-in");
 
-  const roomDocuments:any = []
+  const roomDocuments: any = {
+    data: [
+      {
+        id: "72864762764248",
+        metadata: {
+          title: "Document 1",
+        },
+        createdAt: "03 hours ago",
+      },
+      {
+        id: "83745739857893475",
+        metadata: {
+          title: "Document 2",
+        },
+        createdAt: "01 hours ago",
+      },
+    ],
+  };
 
   return (
     <main className="home-container">
       <Header className="sticky left-0 top-0">
         <div className="flex items-center gap-2 lg:gap-4">
-          Notications
-          {/* <SignedIn>
+          <Notifications />
+          <SignedIn>
             <UserButton />
-          </SignedIn> */}
+          </SignedIn>
         </div>
       </Header>
 
@@ -33,10 +53,10 @@ const Home = async () => {
         <div className="document-list-container">
           <div className="document-list-title">
             <h3 className="text-28-semibold">All documents</h3>
-            {/* <AddDocumentBtn 
+            <AddDocumentBtn
               userId={clerkUser.id}
               email={clerkUser.emailAddresses[0].emailAddress}
-            /> */}
+            />
           </div>
           <ul className="document-ul">
             {roomDocuments.data.map(({ id, metadata, createdAt }: any) => (
@@ -60,7 +80,7 @@ const Home = async () => {
                     </p>
                   </div>
                 </Link>
-                {/* <DeleteModal roomId={id} /> */}
+                <DeleteModal roomId={id} />
               </li>
             ))}
           </ul>
@@ -75,10 +95,10 @@ const Home = async () => {
             className="mx-auto"
           />
 
-          {/* <AddDocumentBtn 
+          <AddDocumentBtn 
             userId={clerkUser.id}
             email={clerkUser.emailAddresses[0].emailAddress}
-          /> */}
+          />
         </div>
       )}
     </main>

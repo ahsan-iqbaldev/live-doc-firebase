@@ -305,3 +305,6 @@
 .lb-elevation {
   background: #0f1c34;
 }
+.cl-internal-180wb59:has(div:only-child) {
+  display: none !important;
+}
