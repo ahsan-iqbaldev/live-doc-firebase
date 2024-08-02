@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useState } from "react";
 
-
 import {
   Dialog,
   DialogClose,
@@ -16,17 +15,26 @@ import {
 } from "@/components/ui/dialog";
 
 import { Button } from "./ui/button";
+import { ThunkDispatch } from "@reduxjs/toolkit";
+import { useDispatch } from "react-redux";
+import { deleteDocument, getDocuments } from "@/store/Slices/homeSlice";
 
-export const DeleteModal = ({ roomId }: DeleteModalProps) => {
+export const DeleteModal = ({ docId, email }: DeleteModalProps) => {
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const deleteDocumentHandler = async () => {
     setLoading(true);
-
-     
-
-    setLoading(false);
+    dispatch(
+      deleteDocument({
+        docId,
+        onSuccess: () => {
+          dispatch(getDocuments({ email }));
+          setLoading(false);
+        },
+      })
+    );
   };
 
   return (
