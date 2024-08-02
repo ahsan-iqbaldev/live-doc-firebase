@@ -147,7 +147,7 @@
   }
 
   .loader {
-    @apply flex size-full h-screen items-center justify-center gap-3 text-white;
+    @apply flex size-full h-screen items-center justify-center gap-3 text-white absolute top-0 left-0 right-0 bg-black;
   }
 
   /* ======================== Auth Pages */
