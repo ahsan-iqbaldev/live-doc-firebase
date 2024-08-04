@@ -18,7 +18,6 @@ const DocumentsSection = ({ userId, email }: DocumentsSectionProps) => {
   const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
   const { documents } = useSelector((state: any) => state.home);
 
-
   useEffect(() => {
     dispatch(getDocuments({ email }));
   }, []);
@@ -46,7 +45,7 @@ const DocumentsSection = ({ userId, email }: DocumentsSectionProps) => {
               <div className="space-y-1">
                 <p className="line-clamp-1 text-lg">{title}</p>
                 <p className="text-sm font-light text-blue-100">
-                  Created about {dateConverter(createdAt)}
+                  Created about {dateConverter(createdAt?.seconds)}
                 </p>
               </div>
             </Link>
