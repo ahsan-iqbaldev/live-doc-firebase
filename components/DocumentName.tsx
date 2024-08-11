@@ -14,7 +14,7 @@ import { success } from "@/Utilities/toast";
 const DocumentName = ({ adminEmail }: any) => {
   const { id } = useParams();
   const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
-  // const inputRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLDivElement>(null);
   const { singleDocument } = useSelector((state: any) => state.document);
   const [documentTitle, setDocumentTitle] = useState(singleDocument.title);
   const [editing, setEditing] = useState(false);
@@ -42,11 +42,11 @@ const DocumentName = ({ adminEmail }: any) => {
     }
   };
 
-  // useEffect(() => {
-  //   if (editing && inputRef.current) {
-  //     inputRef.current.focus();
-  //   }
-  // }, [editing]);
+  useEffect(() => {
+    if (editing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [editing]);
 
   useEffect(() => {
     setDocumentTitle(singleDocument.title);
@@ -62,9 +62,9 @@ const DocumentName = ({ adminEmail }: any) => {
         <Input
           type="text"
           value={documentTitle}
-          // ref={inputRef}
+          ref={inputRef}
           placeholder="Enter title"
-          onChange={(e: any) => setDocumentTitle(e.target.value)}
+          onChange={(e:any) => setDocumentTitle(e.target.value)}
           onKeyDown={updateTitleHandler}
           disable={!editing}
           className="document-title-input"

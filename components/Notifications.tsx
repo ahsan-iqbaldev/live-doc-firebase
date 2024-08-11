@@ -33,9 +33,8 @@ const Notifications = () => {
         )}
 
         {unreadNotifications.length > 0 &&
-          unreadNotifications.map((notification: any) => (
-           
-            <div className="bg-dark-200 text-white">
+          unreadNotifications.map((notification: any, index: any) => (
+            <div className="bg-dark-200 text-white" key={index}>
               <h2>Hello I am Ahsan Iqbal</h2>
             </div>
           ))}
