@@ -1,4 +1,9 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import {
+  Action,
+  createAsyncThunk,
+  createSlice,
+  PayloadAction,
+} from "@reduxjs/toolkit";
 import firebase from "@/config/firebase";
 
 interface createNewDoc {
@@ -37,31 +42,32 @@ export const createNewDocument = createAsyncThunk(
 
 export const getDocuments = createAsyncThunk(
   "home/getDocuments",
-  async ({ email }: getDocumentProps, { rejectWithValue }) => {
+  async ({ email }: getDocumentProps, { dispatch, rejectWithValue }) => {
     try {
-      return new Promise<DocumentData[]>((resolve, reject) => {
-        firebase
-          .firestore()
-          .collection("documents")
-          .where("adminEmail", "==", email)
-          .onSnapshot(
-            (snapshot) => {
-              const updatedDocuments: DocumentData[] = [];
-              snapshot.forEach((doc) => {
-                updatedDocuments.push({ id: doc.id, ...doc.data() });
-              });
-              resolve(updatedDocuments);
-            },
-            (error) => {
-              reject(error.message);
-            }
-          );
-      });
+      const unsubscribe = firebase
+        .firestore()
+        .collection("documents")
+        .where("adminEmail", "==", email)
+        .onSnapshot((querySnapshot) => {
+          const tempStates: any[] = [];
+          querySnapshot.forEach((doc) => {
+            tempStates.push({ id: doc.id, ...doc.data() });
+          });
+
+          dispatch(documentsFetched(tempStates));
+        });
+
+      return unsubscribe;
     } catch (err: any) {
       return rejectWithValue(err.message);
     }
   }
 );
+
+export const documentsFetched = (documents: any[]) => ({
+  type: "home/documentsFetched",
+  payload: documents,
+});
 
 export const deleteDocument = createAsyncThunk(
   "home/deleteDocument",
@@ -105,14 +111,18 @@ const homeSlice = createSlice({
       })
       .addCase(getDocuments.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(getDocuments.fulfilled, (state, action) => {
         state.loading = false;
-        state.documents = action.payload;
       })
       .addCase(getDocuments.rejected, (state, action) => {
         state.loading = false;
-        state.error = null;
+        state.error = action.payload as string;
+      })
+      .addCase("home/documentsFetched", (state, action: any) => {
+        console.log(action, "action.payload");
+        state.documents = action.payload;
       });
   },
 });
