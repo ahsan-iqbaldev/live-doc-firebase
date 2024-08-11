@@ -8,6 +8,7 @@ import { DeleteModal } from "./DeleteModal";
 import { getDocuments } from "@/store/Slices/homeSlice";
 import { ThunkDispatch } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
+import Loading from "./Loading";
 
 interface DocumentsSectionProps {
   userId: string;
@@ -16,13 +17,14 @@ interface DocumentsSectionProps {
 
 const DocumentsSection = ({ userId, email }: DocumentsSectionProps) => {
   const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
-  const { documents } = useSelector((state: any) => state.home);
+  const { documents, loading } = useSelector((state: any) => state.home);
 
   useEffect(() => {
     dispatch(getDocuments({ email }));
   }, []);
   return documents?.length > 0 ? (
     <div className="document-list-container">
+      {loading && <Loading />}
       <div className="document-list-title">
         <h3 className="text-28-semibold">All documents</h3>
         <AddDocumentBtn userId={userId} email={email} />

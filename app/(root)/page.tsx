@@ -1,9 +1,3 @@
-// import AddDocumentBtn from '@/components/AddDocumentBtn';
-// import { DeleteModal } from '@/components/DeleteModal';
-// import AddDocumentBtn from "@/components/AddDocumentBtn";
-// import Header from "@/components/Header";
-// import Notifications from '@/components/Notifications';
-// import { getDocuments } from "@/lib/actions/room.actions";
 import AddDocumentBtn from "@/components/AddDocumentBtn";
 import { DeleteModal } from "@/components/DeleteModal";
 import DocumentsSection from "@/components/DocumentsSection";

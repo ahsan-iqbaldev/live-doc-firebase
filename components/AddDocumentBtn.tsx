@@ -24,7 +24,6 @@ const AddDocumentBtn = ({ userId, email }: AddDocumentBtnProps) => {
       createNewDocument({
         payload,
         onSuccess: (id: string) => {
-          dispatch(getDocuments({ email }));
           router.push(`document/${id}`);
         },
       })
