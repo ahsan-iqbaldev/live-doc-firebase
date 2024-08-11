@@ -3,9 +3,11 @@ import { combineReducers } from "redux";
 // import { persistReducer } from "redux-persist";
 // import storage from "redux-persist/lib/storage";
 import HomeSlice from "./Slices/homeSlice";
+import documentSlice from "./Slices/documentSlice";
 
 const reducers = combineReducers({
   home: HomeSlice,
+  document: documentSlice
 });
 
 // const persistConfig = {
