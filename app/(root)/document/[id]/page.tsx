@@ -12,8 +12,9 @@ const page = async ({ params: { id } }: SearchParamProps) => {
   const clerkUser = await currentUser();
   if (!clerkUser) redirect("/sign-in");
 
-  const adminEmail = clerkUser.emailAddresses[0].emailAddress;
+  console.log(clerkUser, "clerkUserclerkUser");
 
+  const adminEmail = clerkUser.emailAddresses[0].emailAddress;
   return (
     <main className="flex w-full items-center flex-col">
       <Header>
@@ -29,7 +30,7 @@ const page = async ({ params: { id } }: SearchParamProps) => {
           </SignedIn>
         </div>
       </Header>
-      <Document />
+      <Document clerkUser={clerkUser} />
     </main>
   );
 };

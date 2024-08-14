@@ -308,3 +308,17 @@
 .cl-internal-180wb59:has(div:only-child) {
   display: none !important;
 }
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #09111f;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #11203d;
+  border-radius: 20px;
+}
