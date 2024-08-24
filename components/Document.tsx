@@ -10,7 +10,7 @@ const Document = ({ clerkUser }: any) => {
       <div className="w-[30%] px-5 py-8 max-h-[100vh] overflow-y-auto">
         <EditorChat
           email={clerkUser.emailAddresses[0].emailAddress}
-          id={clerkUser.id}
+          clerkId={clerkUser.id}
           profileImage={clerkUser.imageUrl}
           name={clerkUser.firstName + " " + clerkUser.lastName}
         />

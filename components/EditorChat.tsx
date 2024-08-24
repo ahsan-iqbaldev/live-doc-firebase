@@ -1,25 +1,71 @@
 "use client";
+import { dateConverter } from "@/lib/utils";
+import { AddMessage, AddThread, getChats } from "@/store/Slices/documentSlice";
+import { success } from "@/Utilities/toast";
 import { ThunkDispatch } from "@reduxjs/toolkit";
 import Image from "next/image";
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-const EditorChat = ({ email, id, profileImage, name }: any) => {
+const EditorChat = ({ email, clerkId, profileImage, name }: any) => {
+  const { id } = useParams();
+  const { documentChats } = useSelector((state: any) => state.document);
   const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
   const [message, setmessage] = useState("");
+  const [thread, setThread] = useState("");
+  const [threadId, setThreadId] = useState("");
+  console.log(threadId, "threadId");
+
+  const setTheradId = (values: any, threadId: any) => {
+    setThread(values);
+    setThreadId(threadId);
+  };
 
   const submitMessage = () => {
     const payload = {
       email,
-      id,
+      clerkId,
       profileImage,
       name,
       message,
+      id,
     };
-    dispatch(AddMessage({ payload, onSuccess: () => {} }));
+    dispatch(
+      AddMessage({
+        payload,
+        onSuccess: () => {
+          success("Comment added successfully");
+        },
+      })
+    );
     console.log(payload);
     setmessage("");
   };
+  const submitThread = () => {
+    const payload = {
+      email,
+      clerkId,
+      profileImage,
+      name,
+      message,
+      id,
+      threadId,
+    };
+    dispatch(
+      AddThread({
+        payload,
+        onSuccess: () => {
+          success("Thread added successfully");
+        },
+      })
+    );
+    console.log(payload);
+    setmessage("");
+  };
+  useEffect(() => {
+    dispatch(getChats({ id }));
+  }, []);
   return (
     <div className="chat-cover w-full flex flex-col gap-8 mb-10">
       <div className=" w-full bg-[#0c1526] h-[150px] rounded-xl overflow-hidden py-2">
@@ -43,7 +89,7 @@ const EditorChat = ({ email, id, profileImage, name }: any) => {
           </span>
         </div>
       </div>
-      <div className=" w-full bg-[#0c1526] h-auto rounded-xl overflow-hidden pt-2">
+      {/* <div className=" w-full bg-[#0c1526] h-auto rounded-xl overflow-hidden pt-2">
         <div className="py-4 px-4" id="message">
           <div className="flex justify-between">
             <div className="flex justify-center items-center gap-3">
@@ -100,42 +146,50 @@ const EditorChat = ({ email, id, profileImage, name }: any) => {
             className="mt-5 mr-2"
           />
         </div>
-      </div>
-      <div className=" w-full bg-[#0c1526] h-auto rounded-xl overflow-hidden pt-2">
-        <div className="py-4 px-4" id="message">
-          <div className="flex justify-between">
-            <div className="flex justify-center items-center gap-3">
-              {" "}
-              <Image
-                src="/assets/images/Avatar.png"
-                alt={"Ahsan Iqbal"}
-                width={100}
-                height={100}
-                className="inline-block size-8 rounded-full ring-2 ring-dark-100"
-              />
-              <span className="text-lg font-semibold">Ahsan Iqbal</span>
+      </div> */}
+      {documentChats?.map((item: any) => (
+        <div className=" w-full bg-[#0c1526] h-auto rounded-xl overflow-hidden pt-2">
+          <div className="py-4 px-4" id="message">
+            <div className="flex justify-between">
+              <div className="flex justify-center items-center gap-3">
+                {" "}
+                <Image
+                  src={item?.profileImage}
+                  alt={"Ahsan Iqbal"}
+                  width={100}
+                  height={100}
+                  className="inline-block size-8 rounded-full ring-2 ring-dark-100"
+                />
+                <span className="text-lg font-semibold">{item?.name}</span>
+              </div>
+              <div className="text-slate-400 text-sm">
+                {dateConverter(item?.createdAt?.seconds)}
+              </div>
             </div>
-            <div className="text-slate-400 text-sm">2 hours ago</div>
+            <div className="flex bg-[#11203d] py-3 px-3 rounded-lg mt-2">
+              <h2 className="text-white">{item?.message}</h2>
+            </div>
           </div>
-          <div className="flex bg-[#11203d] py-3 px-3 rounded-lg mt-2">
-            <h2 className="text-white">What update?</h2>
+          <div className="flex justify-between items-center bg-[#101b2d] h-[50px] mt-2">
+            <textarea
+              placeholder="Reply to thread..."
+              rows={1}
+              value={thread}
+              onChange={(e) => setTheradId(e.currentTarget.value, item?.id)}
+              onKeyDown={(e) => e.key === "Enter" && submitThread()}
+              className="flex w-[90%] rounded-md border-none outline-none min-h-[120px]bg-[#0c1526] px-3 py-2 text-sm placeholder:text-white cursor-pointer border border-[#101b2d] bg-[#101b2d] resize-none text-white"
+            />
+            <Image
+              src="/assets/icons/Button.svg"
+              alt="Send"
+              width={40}
+              height={40}
+              onClick={submitThread}
+              className="mt-5 mr-2"
+            />
           </div>
         </div>
-        <div className="flex justify-between items-center bg-[#101b2d] h-[50px] mt-2">
-          <textarea
-            placeholder="Reply to thread..."
-            rows={1}
-            className="flex w-[90%] rounded-md border-none outline-none min-h-[120px]bg-[#0c1526] px-3 py-2 text-sm placeholder:text-white cursor-pointer border border-[#101b2d] bg-[#101b2d] resize-none text-white"
-          />
-          <Image
-            src="/assets/icons/Button.svg"
-            alt="Send"
-            width={40}
-            height={40}
-            className="mt-5 mr-2"
-          />
-        </div>
-      </div>
+      ))}
     </div>
   );
 };
