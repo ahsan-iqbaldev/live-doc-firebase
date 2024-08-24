@@ -147,8 +147,11 @@ const EditorChat = ({ email, clerkId, profileImage, name }: any) => {
           />
         </div>
       </div> */}
-      {documentChats?.map((item: any) => (
-        <div className=" w-full bg-[#0c1526] h-auto rounded-xl overflow-hidden pt-2">
+      {documentChats?.map((item: any, index: number) => (
+        <div
+          className=" w-full bg-[#0c1526] h-auto rounded-xl overflow-hidden pt-2"
+          key={index + 100}
+        >
           <div className="py-4 px-4" id="message">
             <div className="flex justify-between">
               <div className="flex justify-center items-center gap-3">
