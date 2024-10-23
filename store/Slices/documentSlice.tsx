@@ -1,6 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import firebase from "@/config/firebase";
 
+interface MessageData {
+  id: string;
+  threads: any[];
+}
+
 export const getSingleDocument = createAsyncThunk(
   "document/getSingleDocument",
   async ({ id }: any, { dispatch, rejectWithValue }) => {
@@ -76,7 +81,7 @@ export const AddThread = createAsyncThunk(
         clerkId: payload?.clerkId,
         profileImage: payload.profileImage,
         name: payload.name,
-        message: payload.message,
+        message: payload.thread,
         // parentDocId: payload?.id,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       };
@@ -105,12 +110,33 @@ export const getChats = createAsyncThunk(
         .doc(id)
         .collection("messages")
         .orderBy("createdAt", "desc")
-        .onSnapshot((querySnapshot) => {
+        .onSnapshot(async (querySnapshot) => {
           const tempStates: any[] = [];
-          querySnapshot.forEach((doc) => {
-            tempStates.push({ id: doc.id, ...doc.data() });
+
+          const promises = querySnapshot.docs.map(async (doc) => {
+            const messageData: any = { id: doc.id, ...doc.data() };
+
+            const threadSnapshot = await firebase
+              .firestore()
+              .collection("documents")
+              .doc(id)
+              .collection("messages")
+              .doc(doc.id)
+              .collection("threads")
+              .get();
+
+            const threads: any[] = [];
+            threadSnapshot.forEach((threadDoc) => {
+              threads.push({ id: threadDoc.id, ...threadDoc.data() });
+            });
+            messageData.threads = threads;
+
+            tempStates.push(messageData);
           });
-          console.log(tempStates, "tempStatestempStates");
+
+          await Promise.all(promises);
+
+          console.log(tempStates, "tempStates with threads");
           dispatch(getChatsFetched(tempStates));
         });
 
@@ -120,6 +146,7 @@ export const getChats = createAsyncThunk(
     }
   }
 );
+
 
 export const getChatsFetched = (chats: any[]) => ({
   type: "document/getChatsFetched",
