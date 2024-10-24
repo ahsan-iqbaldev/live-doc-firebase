@@ -1,7 +1,7 @@
 "use client";
 import { dateConverter } from "@/lib/utils";
 import { AddMessage, AddThread, getChats } from "@/store/Slices/documentSlice";
-import { success } from "@/Utilities/toast";
+import { error, success } from "@/Utilities/toast";
 import { ThunkDispatch } from "@reduxjs/toolkit";
 import Image from "next/image";
 import { useParams } from "next/navigation";
@@ -12,14 +12,14 @@ const EditorChat = ({ email, clerkId, profileImage, name }: any) => {
   const { id } = useParams();
   const { documentChats } = useSelector((state: any) => state.document);
   const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
-  const [message, setmessage] = useState("");
-  const [thread, setThread] = useState("");
-  const [threadId, setThreadId] = useState("");
-  console.log(threadId, "threadId");
+  const [message, setMessage] = useState("");
+  const [threads, setThreads] = useState<{ [key: string]: string }>({});
 
-  const setTheradId = (values: any, threadId: any) => {
-    setThread(values);
-    setThreadId(threadId);
+  const handleThreadChange = (messageId: string, value: string) => {
+    setThreads((prevThreads) => ({
+      ...prevThreads,
+      [messageId]: value,
+    }));
   };
 
   const submitMessage = () => {
@@ -31,6 +31,7 @@ const EditorChat = ({ email, clerkId, profileImage, name }: any) => {
       message,
       id,
     };
+    if (!message) return error("Please Add Comment");
     dispatch(
       AddMessage({
         payload,
@@ -40,18 +41,21 @@ const EditorChat = ({ email, clerkId, profileImage, name }: any) => {
       })
     );
     console.log(payload);
-    setmessage("");
+    setMessage("");
   };
-  const submitThread = () => {
+
+  const submitThread = (messageId: string) => {
     const payload = {
       email,
       clerkId,
       profileImage,
       name,
-      thread,
+      thread: threads[messageId],
       id,
-      threadId,
+      threadId: messageId,
     };
+    if (!threads[messageId]) return error("Please Add Thread");
+
     dispatch(
       AddThread({
         payload,
@@ -61,20 +65,24 @@ const EditorChat = ({ email, clerkId, profileImage, name }: any) => {
       })
     );
     console.log(payload);
-    setThreadId("");
-    setThread("");
+    setThreads((prevThreads) => ({
+      ...prevThreads,
+      [messageId]: "",
+    }));
   };
+
   useEffect(() => {
     dispatch(getChats({ id }));
-  }, []);
+  }, [dispatch, id]);
+
   return (
     <div className="chat-cover w-full flex flex-col gap-8 mb-10">
-      <div className=" w-full bg-[#0c1526] h-[150px] rounded-xl overflow-hidden py-2">
+      <div className="w-full bg-[#0c1526] h-[150px] rounded-xl overflow-hidden py-2">
         <textarea
           placeholder="Write a Comment..."
           rows={4}
           value={message}
-          onChange={(e) => setmessage(e.currentTarget.value)}
+          onChange={(e) => setMessage(e.currentTarget.value)}
           onKeyDown={(e) => e.key === "Enter" && submitMessage()}
           className="flex w-full rounded-md border-none outline-none min-h-[120px]bg-[#0c1526] px-3 py-2 text-sm placeholder:text-slate-500 cursor-pointer border border-[#0c1526] bg-[#0c1526] resize-none"
         />
@@ -90,6 +98,7 @@ const EditorChat = ({ email, clerkId, profileImage, name }: any) => {
           </span>
         </div>
       </div>
+
       {documentChats?.map((item: any, index: number) => (
         <div
           className=" w-full bg-[#0c1526] h-auto rounded-xl overflow-hidden pt-2"
@@ -98,7 +107,6 @@ const EditorChat = ({ email, clerkId, profileImage, name }: any) => {
           <div className="py-4 px-4" id="message">
             <div className="flex justify-between">
               <div className="flex justify-center items-center gap-3">
-                {" "}
                 <Image
                   src={item?.profileImage}
                   alt={"Ahsan Iqbal"}
@@ -116,36 +124,41 @@ const EditorChat = ({ email, clerkId, profileImage, name }: any) => {
               <h2 className="text-white">{item?.message}</h2>
             </div>
           </div>
-          {item?.threads?.map((item: any, index: number) => (
-            <div className="py-4 px-4" id="message" key={index + 200}>
+
+          {item?.threads?.map((threadItem: any, threadIndex: number) => (
+            <div className="py-4 px-4" id="message" key={threadIndex + 200}>
               <div className="flex justify-between">
                 <div className="flex justify-center items-center gap-3">
-                  {" "}
                   <Image
-                    src={item?.profileImage}
+                    src={threadItem?.profileImage}
                     alt={"Ahsan Iqbal"}
                     width={100}
                     height={100}
                     className="inline-block size-8 rounded-full ring-2 ring-dark-100"
                   />
-                  <span className="text-lg font-semibold">{item?.name}</span>
+                  <span className="text-lg font-semibold">
+                    {threadItem?.name}
+                  </span>
                 </div>
-                <div className="text-slate-400 text-sm">
-                  {dateConverter(item?.createdAt?.seconds)}
+                <div className="text-slate-400 text-sm flex flex-col">
+                  {dateConverter(threadItem?.createdAt?.seconds)}
                 </div>
               </div>
               <div className="flex bg-[#11203d] py-3 px-3 rounded-lg mt-2">
-                <h2 className="text-white">{item?.message}</h2>
+                <h2 className="text-white">{threadItem?.message}</h2>
               </div>
             </div>
           ))}
+
           <div className="flex justify-between items-center bg-[#101b2d] h-[50px] mt-2">
             <textarea
               placeholder="Reply to thread..."
               rows={1}
-              value={thread}
-              onChange={(e) => setTheradId(e.currentTarget.value, item?.id)}
-              onKeyDown={(e) => e.key === "Enter" && submitThread()}
+              value={threads[item.id] || ""}
+              onChange={(e) =>
+                handleThreadChange(item.id, e.currentTarget.value)
+              }
+              onKeyDown={(e) => e.key === "Enter" && submitThread(item.id)}
               className="flex w-[90%] rounded-md border-none outline-none min-h-[120px]bg-[#0c1526] px-3 py-2 text-sm placeholder:text-white cursor-pointer border border-[#101b2d] bg-[#101b2d] resize-none text-white"
             />
             <Image
@@ -153,7 +166,7 @@ const EditorChat = ({ email, clerkId, profileImage, name }: any) => {
               alt="Send"
               width={40}
               height={40}
-              onClick={submitThread}
+              onClick={() => submitThread(item.id)}
               className="mt-5 mr-2"
             />
           </div>

@@ -112,32 +112,47 @@ export const getChats = createAsyncThunk(
         .orderBy("createdAt", "desc")
         .onSnapshot(async (querySnapshot) => {
           const tempStates: any[] = [];
+          console.log(tempStates, "tempStatesbyahsan");
 
           const promises = querySnapshot.docs.map(async (doc) => {
             const messageData: any = { id: doc.id, ...doc.data() };
+            console.log(messageData, "messageDatabyahsan");
 
-            const threadSnapshot = await firebase
+            firebase
               .firestore()
               .collection("documents")
               .doc(id)
               .collection("messages")
               .doc(doc.id)
               .collection("threads")
-              .get();
+              .orderBy("createdAt", "asc")
+              .onSnapshot((threadSnapshot) => {
+                const threads: any[] = [];
+                threadSnapshot.forEach((threadDoc) => {
+                  threads.push({ id: threadDoc.id, ...threadDoc.data() });
+                });
+                console.log(threads, "threadsbyahsan");
+                const updatedMessageData = {
+                  ...messageData,
+                  threads,
+                };
 
-            const threads: any[] = [];
-            threadSnapshot.forEach((threadDoc) => {
-              threads.push({ id: threadDoc.id, ...threadDoc.data() });
-            });
-            messageData.threads = threads;
+                const existingMessageIndex = tempStates.findIndex(
+                  (msg) => msg.id === messageData.id
+                );
+                if (existingMessageIndex > -1) {
+                  tempStates[existingMessageIndex] = updatedMessageData;
+                } else {
+                  tempStates.push(updatedMessageData);
+                }
 
-            tempStates.push(messageData);
+                dispatch(getChatsFetched([...tempStates]));
+              });
           });
 
           await Promise.all(promises);
 
           console.log(tempStates, "tempStates with threads");
-          dispatch(getChatsFetched(tempStates));
         });
 
       return unsubscribe;
@@ -146,7 +161,6 @@ export const getChats = createAsyncThunk(
     }
   }
 );
-
 
 export const getChatsFetched = (chats: any[]) => ({
   type: "document/getChatsFetched",
