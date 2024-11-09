@@ -9,8 +9,9 @@ import Image from "@tiptap/extension-image";
 import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
 import ImageResize from "tiptap-extension-resize-image";
+import { useEffect } from "react";
 
-export default function RichTextEditor({ content, onChange }:any) {
+export default function RichTextEditor({ content, onChange }: any) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure(),
@@ -34,18 +35,22 @@ export default function RichTextEditor({ content, onChange }:any) {
       Image,
       ImageResize,
     ],
-    content: content,
+    content: content || "",
     editorProps: {
       attributes: {
-        class: "min-h-[80vh] rounded-md text-white outline-none bg-[#111f3d] py-2 px-3",
+        class:
+          "min-h-[80vh] rounded-md text-white outline-none bg-[#111f3d] py-2 px-3",
       },
     },
     onUpdate: ({ editor }) => {
-      console.log(editor.getHTML());
       onChange(editor.getHTML());
     },
   });
-
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content || "");
+    }
+  }, [content, editor]);
   return (
     <div>
       <ToolBar editor={editor} />

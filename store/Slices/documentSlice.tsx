@@ -112,11 +112,9 @@ export const getChats = createAsyncThunk(
         .orderBy("createdAt", "desc")
         .onSnapshot(async (querySnapshot) => {
           const tempStates: any[] = [];
-          console.log(tempStates, "tempStatesbyahsan");
 
           const promises = querySnapshot.docs.map(async (doc) => {
             const messageData: any = { id: doc.id, ...doc.data() };
-            console.log(messageData, "messageDatabyahsan");
 
             firebase
               .firestore()
@@ -131,7 +129,6 @@ export const getChats = createAsyncThunk(
                 threadSnapshot.forEach((threadDoc) => {
                   threads.push({ id: threadDoc.id, ...threadDoc.data() });
                 });
-                console.log(threads, "threadsbyahsan");
                 const updatedMessageData = {
                   ...messageData,
                   threads,
@@ -152,7 +149,6 @@ export const getChats = createAsyncThunk(
 
           await Promise.all(promises);
 
-          console.log(tempStates, "tempStates with threads");
         });
 
       return unsubscribe;
@@ -166,6 +162,21 @@ export const getChatsFetched = (chats: any[]) => ({
   type: "document/getChatsFetched",
   payload: chats,
 });
+
+export const setDocumentContent = createAsyncThunk(
+  "document/setDocumentContent",
+  async ({ content, docId }: any, { dispatch, rejectWithValue }) => {
+    try {
+      firebase
+        .firestore()
+        .collection("documents")
+        .doc(docId)
+        .update({ content });
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
 
 interface HomeInitialState {
   singleDocument: any;

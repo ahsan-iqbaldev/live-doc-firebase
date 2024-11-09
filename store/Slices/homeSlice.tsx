@@ -121,7 +121,6 @@ const homeSlice = createSlice({
         state.error = action.payload as string;
       })
       .addCase("home/documentsFetched", (state, action: any) => {
-        console.log(action, "action.payload");
         state.documents = action.payload;
       });
   },

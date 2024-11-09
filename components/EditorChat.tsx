@@ -40,7 +40,6 @@ const EditorChat = ({ email, clerkId, profileImage, name }: any) => {
         },
       })
     );
-    console.log(payload);
     setMessage("");
   };
 
@@ -64,7 +63,6 @@ const EditorChat = ({ email, clerkId, profileImage, name }: any) => {
         },
       })
     );
-    console.log(payload);
     setThreads((prevThreads) => ({
       ...prevThreads,
       [messageId]: "",
